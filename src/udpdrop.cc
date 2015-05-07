@@ -4,6 +4,21 @@
 #include <sys/socket.h>
 #include <sys/uio.h>
 
+
+namespace {
+
+bool is_datagram_socket(int fd)
+{
+    int socktype;
+    socklen_t socktype_len = sizeof(socktype);
+
+    return getsockopt(fd, SOL_SOCKET, SO_TYPE, &socktype, &socktype_len) == 0
+        && socktype == SOCK_DGRAM;
+}
+
+}
+
+
 extern "C" {
 
 int socket(int domain, int type, int protocol)

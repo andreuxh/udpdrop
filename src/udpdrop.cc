@@ -53,46 +53,6 @@ size_t iovec_size(const struct iovec *iov, int iovcnt)
 
 extern "C" {
 
-int socket(int domain, int type, int protocol)
-{
-    static auto *sys_socket = LOADSYM(socket);
-    return sys_socket(domain, type, protocol);
-}
-
-int dup(int oldfd)
-{
-    static auto *sys_dup = LOADSYM(dup);
-    return sys_dup(oldfd);
-}
-
-int dup2(int oldfd, int newfd)
-{
-    static auto *sys_dup2 = LOADSYM(dup2);
-    return sys_dup2(oldfd, newfd);
-}
-
-int dup3(int oldfd, int newfd, int flags)
-{
-    static auto *sys_dup3 = LOADSYM(dup3);
-    return sys_dup3(oldfd, newfd, flags);
-}
-
-/*
-    fcntl third argument can be an int, a pointer, or simply not there.
-    I believe forwarding it as void * should be safe.
-*/
-int fcntl(int fd, int cmd, void *arg)
-{
-    static auto *sys_fcntl = LOADSYM(fcntl);
-    return sys_fcntl(fd, cmd, arg);
-}
-
-int close(int fd)
-{
-    static auto *sys_close = LOADSYM(close);
-    return sys_close(fd);
-}
-
 ssize_t send(int sockfd, const void *buf, size_t len, int flags)
 {
     static auto *sys_send = LOADSYM(send);

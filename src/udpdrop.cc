@@ -1,5 +1,7 @@
 #include "loadsym.hh"
 
+#include <mutex>
+
 #include <sys/types.h>
 #include <sys/socket.h>
 #include <sys/uio.h>
@@ -8,6 +10,8 @@
 
 
 namespace {
+
+std::mutex mutex;
 
 bool is_datagram_socket(int fd)
 {
@@ -55,6 +59,8 @@ extern "C" {
 
 ssize_t send(int sockfd, const void *buf, size_t len, int flags)
 {
+    std::unique_lock<std::mutex> lock(mutex);
+
     static auto *sys_send = LOADSYM(send);
 
     if (should_drop_datagram(sockfd)) {
@@ -66,6 +72,8 @@ ssize_t send(int sockfd, const void *buf, size_t len, int flags)
 ssize_t sendto(int sockfd, const void *buf, size_t len, int flags,
                const struct sockaddr *dest_addr, socklen_t addrlen)
 {
+    std::unique_lock<std::mutex> lock(mutex);
+
     static auto *sys_sendto = LOADSYM(sendto);
 
     if (should_drop_datagram(sockfd)) {
@@ -76,6 +84,8 @@ ssize_t sendto(int sockfd, const void *buf, size_t len, int flags,
 
 ssize_t sendmsg(int sockfd, const struct msghdr *msg, int flags)
 {
+    std::unique_lock<std::mutex> lock(mutex);
+
     static auto *sys_sendmsg = LOADSYM(sendmsg);
 
     if (should_drop_datagram(sockfd)) {
@@ -86,6 +96,8 @@ ssize_t sendmsg(int sockfd, const struct msghdr *msg, int flags)
 
 ssize_t write(int fd, const void *buf, size_t count)
 {
+    std::unique_lock<std::mutex> lock(mutex);
+
     static auto *sys_write = LOADSYM(write);
 
     if (should_drop_datagram(fd)) {
@@ -96,6 +108,8 @@ ssize_t write(int fd, const void *buf, size_t count)
 
 ssize_t writev(int fd, const struct iovec *iov, int iovcnt)
 {
+    std::unique_lock<std::mutex> lock(mutex);
+
     static auto *sys_writev = LOADSYM(writev);
 
     if (should_drop_datagram(fd)) {

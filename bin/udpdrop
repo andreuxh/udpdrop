@@ -1,0 +1,13 @@
+#!/bin/sh
+
+case "$1" in
+-r|--rate)
+    UDP_DROP_RATE=$2
+    export UDP_DROP_RATE
+    shift 2
+    ;;
+esac
+
+LD_PRELOAD="${0%udpdrop}../lib/libudpdrop.so${LD_PRELOAD:+ $LD_PRELOAD}"
+export LD_PRELOAD
+exec "$@"

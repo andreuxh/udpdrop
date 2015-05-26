@@ -1,5 +1,10 @@
 #!/bin/sh
 
+bin="$( basename $0 )"
+bindir="$( cd $( dirname $0 ) && pwd )"
+libdir="$bindir/../lib"
+lib="lib$bin.so"
+
 case "$1" in
 -r|--rate)
     UDP_DROP_RATE=$2
@@ -8,6 +13,6 @@ case "$1" in
     ;;
 esac
 
-LD_PRELOAD="${0%udpdrop}../lib/libudpdrop.so${LD_PRELOAD:+ $LD_PRELOAD}"
+LD_PRELOAD="$libdir/$lib${LD_PRELOAD:+ $LD_PRELOAD}"
 export LD_PRELOAD
 exec "$@"

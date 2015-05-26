@@ -7,6 +7,7 @@
 #include <sys/uio.h>
 
 #include <stdlib.h>
+#include <math.h>
 
 
 namespace {
@@ -22,15 +23,19 @@ bool is_datagram_socket(int fd)
         && socktype == SOCK_DGRAM;
 }
 
-double get_datagram_drop_rate()
+int get_datagram_drop_rate()
 {
-    const char *datagram_drop_rate = getenv("UDP_DROP_RATE");
-    return (datagram_drop_rate) ? atof(datagram_drop_rate) : 0.0;
-}
-
-double randu()
-{
-    return rand() / ((double)RAND_MAX + 1);
+    const char *srate = getenv("UDP_DROP_RATE");
+    double drate = (srate) ? atof(srate) : 0.0;
+    if (drate <= 0.0) {
+        return -1;
+    }
+    else if (drate >= 1.0) {
+        return RAND_MAX;
+    }
+    else {
+        return lrint(-1.0 + (1.0 + RAND_MAX) * drate);
+    }
 }
 
 bool should_drop_datagram(int fd)
@@ -39,8 +44,8 @@ bool should_drop_datagram(int fd)
         return false;
     }
 
-    static const double datagram_drop_rate = get_datagram_drop_rate();
-    return randu() < datagram_drop_rate;
+    static const int datagram_drop_rate = get_datagram_drop_rate();
+    return rand() <= datagram_drop_rate;
 }
 
 size_t iovec_size(const struct iovec *iov, int iovcnt)

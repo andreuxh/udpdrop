@@ -5,14 +5,22 @@ bindir="$( cd $( dirname $0 ) && pwd )"
 libdir="$bindir/../lib"
 lib="lib$bin.so"
 
+usage ()
+{
+    echo 2>&1 "Usage: $bin [-r|--rate RATE] COMMAND"
+    exit 1
+}
+
 case "$1" in
 -r|--rate)
+    [ $# -ge 2 ] || usage
     UDP_DROP_RATE=$2
     export UDP_DROP_RATE
     shift 2
     ;;
 esac
 
+[ $# -ge 1 ] || usage
 LD_PRELOAD="$libdir/$lib${LD_PRELOAD:+ $LD_PRELOAD}"
 export LD_PRELOAD
 exec "$@"
